@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VOLTAGE LAB — Баллистика</title>
+  <style>
+    :root {
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --text: #0f172a;
+      --sub: #94a3b8;
+      --border: #e2e8f0;
+      --primary: #0f172a;
+      --voltage: #6366f1;
+      --accent: #2563eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; }
+    
+    .app { width: 100%; max-width: 440px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; padding-bottom: 40px; }
+
+    /* Шапка */
+    .header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fff; z-index: 10; flex-shrink: 0; }
+    .brand-wrap { display: flex; align-items: center; gap: 8px; }
+    .brand-logo { width: 22px; height: 22px; background: #111827; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fbbf24; font-weight: 900; font-size: 13px; }
+    .title { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+    .badge { font-size: 11px; font-weight: 700; background: #eef2ff; color: var(--voltage); padding: 4px 8px; border-radius: 6px; border: 1px solid #c7d2fe; }
+
+    /* Холст */
+    .viewport { position: relative; width: 100%; height: 280px; background: linear-gradient(180deg, #dce8f8 0%, #edf3fc 60%, #e2e8f0 100%); flex-shrink: 0; border-bottom: 1px solid var(--border); touch-action: none; }
+    .viewport canvas { width: 100%; height: 100%; display: block; }
+    .view-ctrls { position: absolute; top: 12px; right: 14px; display: flex; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+    .v-btn { border: none; background: transparent; padding: 6px 12px; font-weight: 700; font-size: 12px; cursor: pointer; border-right: 1px solid var(--border); color: #334155; }
+    .v-btn:last-child { border-right: none; }
+    
+    .play-float-btn { position: absolute; bottom: -24px; right: 18px; width: 52px; height: 52px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; border: none; box-shadow: 0 4px 14px rgba(15,23,42,0.3); cursor: pointer; transition: transform 0.1s; z-index: 5; }
+    .play-float-btn:active { transform: scale(0.92); }
+    .play-float-btn svg { width: 22px; height: 22px; fill: #fff; }
+    
+    /* Контент */
+    .content { padding: 30px 16px 16px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
+    .card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .card-head { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; }
+    .card-title-dot { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+    .card-title-dot::before { content: ""; width: 7px; height: 7px; background: #0f172a; border-radius: 50%; }
+    
+    .stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 4px; }
+    .s-item { border-right: 1px solid #edf0f5; }
+    .s-item:last-child { border-right: none; }
+    .s-label { font-size: 10px; color: var(--sub); line-height: 1.2; margin-bottom: 4px; }
+    .s-val { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .s-unit { font-size: 11px; font-weight: 500; color: var(--sub); }
+    
+    .stepper { display: inline-flex; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 1px 3px; }
+    .step-btn { background: none; border: none; font-size: 17px; font-weight: 600; width: 28px; height: 28px; cursor: pointer; color: #475569; }
+    .step-val { min-width: 62px; text-align: center; font-size: 13px; font-weight: 700; }
+    input[type=range] { width: 100%; accent-color: #0f172a; height: 5px; background: #e2e8f0; border-radius: 3px; outline: none; }
+    
+    .scrubber-card { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .timeline-range { accent-color: var(--accent) !important; }
+    
+    .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .p-chip { padding: 9px 0; border: 1px solid var(--border); background: #fff; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; color: #334155; }
+    .p-chip.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+    
+    .custom-g-input { width: 70px; padding: 4px 8px; font-size: 13px; font-weight: 700; text-align: center; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+    .planets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .planet-btn { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: #fff; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+    .planet-btn.active { border-color: var(--accent); background: #eff6ff; }
+    .p-title { font-size: 13px; font-weight: 700; text-align: left; }
+    .p-sub { font-size: 11px; color: var(--sub); text-align: left; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="brand-wrap">
+      <div class="brand-logo">⚡</div>
+      <div class="title">VOLTAGE LAB</div>
+    </div>
+    <div class="badge">10–11 КЛАСС</div>
+  </div>
+
+  <div class="viewport">
+    <div class="view-ctrls">
+      <button class="v-btn" onclick="zoom(1.25)">+</button>
+      <button class="v-btn" onclick="zoom(0.8)">-</button>
+      <button class="v-btn" onclick="autoScale()">Авто</button>
+    </div>
+    <canvas id="canvas"></canvas>
+    <button class="play-float-btn" id="playBtn" onclick="togglePlay()">
+      <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- Перемотка времени -->
+    <div class="card scrubber-card">
+      <div class="card-head">
+        <span style="color: #1e40af; font-weight: 700;">Перемотка траектории (t)</span>
+        <span id="scrubberLabel" style="font-size: 14px; font-weight: 800; color: #1d4ed8;">0.00 / 0.00 с</span>
+      </div>
+      <input type="range" class="timeline-range" id="timeScrubber" min="0" max="100" step="0.01" value="0" oninput="scrubTime(this.value)">
+    </div>
+
+    <!-- Кинематика точки -->
+    <div class="card">
+      <div class="card-title-dot">Кинематика в точке (t)</div>
+      <div class="stats-grid-4">
+        <div class="s-item"><div class="s-label">Координата X</div><div class="s-val" id="rDist">0.0</div><div class="s-unit">м</div></div>
+        <div class="s-item"><div class="s-label">Высота Y</div><div class="s-val" id="rH">0.0</div><div class="s-unit">м</div></div>
+        <div class="s-item"><div class="s-label">Скорость v</div><div class="s-val" id="rVFull">0.0</div><div class="s-unit">м/с</div></div>
+        <div class="s-item"><div class="s-label">Угол траектории &theta;</div><div class="s-val" id="rTheta">0°</div><div class="s-unit">град</div></div>
+      </div>
+      <div class="stats-grid-4" style="border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+        <div class="s-item"><div class="s-label">Проекция vx</div><div class="s-val" id="rVx">0.0</div><div class="s-unit">м/с</div></div>
+        <div class="s-item"><div class="s-label">Проекция vy</div><div class="s-val" id="rVy">0.0</div><div class="s-unit">м/с</div></div>
+        <div class="s-item"><div class="s-label">Танг. уск. a&tau;</div><div class="s-val" id="rAt">0.0</div><div class="s-unit">м/с²</div></div>
+        <div class="s-item"><div class="s-label">Центростр. an</div><div class="s-val" id="rAn">0.0</div><div class="s-unit">м/с²</div></div>
+      </div>
+    </div>
+
+    <!-- Динамика и закон сохранения энергии -->
+    <div class="card">
+      <div class="card-title-dot">Динамика и энергии (ЗСЭ)</div>
+      <div class="stats-grid-4">
+        <div class="s-item"><div class="s-label">Кин. энергия Ek</div><div class="s-val" id="rEk">0.0</div><div class="s-unit">Дж</div></div>
+        <div class="s-item"><div class="s-label">Пот. энергия Ep</div><div class="s-val" id="rEp">0.0</div><div class="s-unit">Дж</div></div>
+        <div class="s-item"><div class="s-label">Полная En</div><div class="s-val" id="rEtot">0.0</div><div class="s-unit">Дж</div></div>
+        <div class="s-item"><div class="s-label">Импульс p</div><div class="s-val" id="rP">0.0</div><div class="s-unit">кг·м/с</div></div>
+      </div>
+    </div>
+
+    <!-- Угол alpha -->
+    <div class="card">
+      <div class="card-head">
+        <span>Угол &alpha;</span>
+        <div class="stepper"><button class="step-btn" onclick="changeAngle(-1)">-</button><span class="step-val" id="angleTxt">45°</span><button class="step-btn" onclick="changeAngle(1)">+</button></div>
+      </div>
+      <input type="range" id="angleRange" min="0" max="90" value="45" oninput="setAngleVal(this.value)">
+      <div class="presets">
+        <button class="p-chip" onclick="setAngleVal(30)">30°</button>
+        <button class="p-chip active" onclick="setAngleVal(45)">45°</button>
+        <button class="p-chip" onclick="setAngleVal(60)">60°</button>
+        <button class="p-chip" onclick="setAngleVal(90)">90°</button>
+      </div>
+    </div>
+
+    <!-- Высота h0 -->
+    <div class="card">
+      <div class="card-head">
+        <span>Высота h₀</span>
+        <div class="stepper"><button class="step-btn" onclick="changeH0(-5)">-</button><span class="step-val" id="h0Txt">250 м</span><button class="step-btn" onclick="changeH0(5)">+</button></div>
+      </div>
+      <input type="range" id="h0Range" min="0" max="250" value="250" oninput="setH0Val(this.value)">
+    </div>
+
+    <!-- Скорость v0 -->
+    <div class="card">
+      <div class="card-head">
+        <span>Скорость v₀</span>
+        <div class="stepper"><button class="step-btn" onclick="changeV0(-5)">-</button><span class="step-val" id="v0Txt">177 м/с</span><button class="step-btn" onclick="changeV0(5)">+</button></div>
+      </div>
+      <input type="range" id="v0Range" min="1" max="300" value="177" oninput="setV0Val(this.value)">
+    </div>
+
+    <!-- Масса снаряда m -->
+    <div class="card">
+      <div class="card-head">
+        <span>Масса снаряда m</span>
+        <div class="stepper"><button class="step-btn" onclick="changeMass(-0.5)">-</button><span class="step-val" id="mTxt">2.0 кг</span><button class="step-btn" onclick="changeMass(0.5)">+</button></div>
+      </div>
+      <input type="range" id="mRange" min="0.1" max="50" step="0.1" value="2.0" oninput="setMassVal(this.value)">
+    </div>
+
+    <!-- Ускорение свободного падения g -->
+    <div class="card">
+      <div class="card-head">
+        <span>Ускорение g (м/с²)</span>
+        <input type="number" step="0.01" min="0.1" max="100" class="custom-g-input" id="gInput" value="10.00" onchange="setCustomG(this.value)">
+      </div>
+      <div class="planets">
+        <button class="planet-btn" onclick="choosePlanet(9.81, this)"><div class="p-title">Земля</div><div class="p-sub">9.81 м/с²</div></button>
+        <button class="planet-btn active" onclick="choosePlanet(10.0, this)"><div class="p-title">ЕГЭ</div><div class="p-sub">10.0 м/с²</div></button>
+        <button class="planet-btn" onclick="choosePlanet(3.71, this)"><div class="p-title">Марс</div><div class="p-sub">3.71 м/с²</div></button>
+        <button class="planet-btn" onclick="choosePlanet(1.62, this)"><div class="p-title">Луна</div><div class="p-sub">1.62 м/с²</div></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  let angle = 45;
+  let h0 = 250;
+  let v0 = 177;
+  let mass = 2.0;
+  let g = 10.0;
+
+  let animFrame = null;
+  let isPlaying = false;
+  let currentTime = 0;
+  let userZoom = 1.0;
+  let lastTimestamp = null;
+  let lastLaunch = null;
+  let ghostTraj = null;
+
+  function initCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.parentElement.clientWidth * dpr;
+    canvas.height = canvas.parentElement.clientHeight * dpr;
+    ctx.resetTransform();
+    ctx.scale(dpr, dpr);
+    syncTimelineLimits();
+    renderScene();
+  }
+
+  function setAngleVal(val) {
+    angle = Math.max(0, Math.min(90, Number(val)));
+    document.getElementById('angleTxt').innerText = angle + '°';
+    document.getElementById('angleRange').value = angle;
+    document.querySelectorAll('.presets .p-chip').forEach(b => {
+      b.classList.toggle('active', Number(b.innerText.replace('°','')) === angle);
+    });
+    onParamsChanged();
+  }
+  function changeAngle(d) { setAngleVal(angle + d); }
+
+  function setH0Val(val) {
+    h0 = Math.max(0, Math.min(250, Number(val)));
+    document.getElementById('h0Txt').innerText = h0 + ' м';
+    document.getElementById('h0Range').value = h0;
+    onParamsChanged();
+  }
+  function changeH0(d) { setH0Val(h0 + d); }
+
+  function setV0Val(val) {
+    v0 = Math.max(1, Math.min(300, Number(val)));
+    document.getElementById('v0Txt').innerText = v0 + ' м/с';
+    document.getElementById('v0Range').value = v0;
+    onParamsChanged();
+  }
+  function changeV0(d) { setV0Val(v0 + d); }
+
+  function setMassVal(val) {
+    mass = Math.max(0.1, Math.min(50, Number(val)));
+    document.getElementById('mTxt').innerText = mass.toFixed(1) + ' кг';
+    document.getElementById('mRange').value = mass;
+    onParamsChanged();
+  }
+  function changeMass(d) { setMassVal(mass + d); }
+
+  function setCustomG(val) {
+    const p = parseFloat(val);
+    if (!isNaN(p) && p > 0) {
+      g = p;
+      document.querySelectorAll('.planets .planet-btn').forEach(b => b.classList.remove('active'));
+      onParamsChanged();
+    }
+  }
+
+  function choosePlanet(val, btn) {
+    g = val;
+    document.getElementById('gInput').value = g.toFixed(2);
+    document.querySelectorAll('.planets .planet-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    onParamsChanged();
+  }
+
+  function zoom(factor) { userZoom *= factor; renderScene(); }
+  function autoScale() { userZoom = 1.0; renderScene(); }
+
+  function calcPhysics() {
+    const rad = (angle * Math.PI) / 180;
+    const vx = v0 * Math.cos(rad);
+    const vy = v0 * Math.sin(rad);
+    const D = vy * vy + 2 * g * h0;
+    const tTotal = (vy + Math.sqrt(Math.max(0, D))) / g;
+    return { rad, vx, vy, tTotal, maxH: h0 + (vy * vy) / (2 * g), range: vx * tTotal };
+  }
+
+  function syncTimelineLimits() {
+    const phys = calcPhysics();
+    const sc = document.getElementById('timeScrubber');
+    sc.max = phys.tTotal.toFixed(2);
+    if (currentTime > phys.tTotal) currentTime = phys.tTotal;
+    sc.value = currentTime;
+    updateTelemetry(currentTime, phys);
+  }
+
+  function onParamsChanged() {
+    syncTimelineLimits();
+    renderScene();
+  }
+
+  function updateTelemetry(t, phys) {
+    const x = phys.vx * t;
+    const y = Math.max(0, h0 + phys.vy * t - 0.5 * g * t * t);
+    const curVy = phys.vy - g * t;
+    const vFull = Math.sqrt(phys.vx * phys.vx + curVy * curVy);
+    const thetaRad = Math.atan2(curVy, phys.vx);
+    
+    document.getElementById('scrubberLabel').innerText = `${t.toFixed(2)} / ${phys.tTotal.toFixed(2)} с`;
+    document.getElementById('rDist').innerText = x.toFixed(1); 
+    document.getElementById('rH').innerText = y.toFixed(1);
+    document.getElementById('rVFull').innerText = vFull.toFixed(1); 
+    document.getElementById('rTheta').innerText = (thetaRad * 180 / Math.PI).toFixed(1) + '°';
+    
+    document.getElementById('rVx').innerText = phys.vx.toFixed(1); 
+    document.getElementById('rVy').innerText = curVy.toFixed(1);
+    document.getElementById('rAt').innerText = Math.abs(g * Math.sin(thetaRad)).toFixed(2); 
+    document.getElementById('rAn').innerText = Math.abs(g * Math.cos(thetaRad)).toFixed(2);
+    
+    const ek = 0.5 * mass * vFull * vFull;
+    const ep = mass * g * y;
+    document.getElementById('rEk').innerText = ek.toFixed(1); 
+    document.getElementById('rEp').innerText = ep.toFixed(1);
+    document.getElementById('rEtot').innerText = (ek + ep).toFixed(1); 
+    document.getElementById('rP').innerText = (mass * vFull).toFixed(1);
+  }
+
+  function scrubTime(val) {
+    pause(); 
+    currentTime = parseFloat(val); 
+    updateTelemetry(currentTime, calcPhysics()); 
+    renderScene(); 
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      pause();
+    } else {
+      const phys = calcPhysics();
+      if (currentTime >= phys.tTotal || currentTime === 0) {
+        if (lastLaunch) ghostTraj = lastLaunch;
+        lastLaunch = { phys: phys, h0: h0, g: g };
+        currentTime = 0;
+      }
+      play();
+    }
+  }
+
+  function play() {
+    isPlaying = true;
+    lastTimestamp = null;
+    document.getElementById('playIcon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+    animFrame = requestAnimationFrame(stepAnim);
+  }
+
+  function pause() {
+    isPlaying = false;
+    cancelAnimationFrame(animFrame);
+    document.getElementById('playIcon').innerHTML = '<path d="M8 5v14l11-7z"/>';
+  }
+
+  function stepAnim(ts) {
+    if (!lastTimestamp) lastTimestamp = ts;
+    currentTime += (ts - lastTimestamp) / 1000;
+    lastTimestamp = ts;
+    
+    const phys = calcPhysics();
+    if (currentTime >= phys.tTotal) {
+      currentTime = phys.tTotal;
+      updateTelemetry(currentTime, phys);
+      document.getElementById('timeScrubber').value = currentTime;
+      renderScene();
+      pause();
+      return;
+    }
+    
+    document.getElementById('timeScrubber').value = currentTime;
+    updateTelemetry(currentTime, phys);
+    renderScene();
+    animFrame = requestAnimationFrame(stepAnim);
+  }
+
+  function renderScene() {
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    ctx.clearRect(0, 0, w, h);
+    
+    const groundY = h - 30;
+    const originX = 42;
+    const phys = calcPhysics();
+    
+    const viewMx = Math.max(120, phys.range * 1.15) / userZoom;
+    const viewMy = Math.max(60, phys.maxH * 1.25) / userZoom;
+    const mScale = Math.min((w - 70) / viewMx, (groundY - 30) / viewMy);
+
+    // Горы
+    ctx.fillStyle = '#d7e2f0'; ctx.beginPath(); ctx.moveTo(0, groundY); ctx.quadraticCurveTo(w * 0.25, groundY - 70, w * 0.55, groundY); ctx.fill();
+    ctx.fillStyle = '#c4d4e8'; ctx.beginPath(); ctx.moveTo(w * 0.32, groundY); ctx.quadraticCurveTo(w * 0.72, groundY - 95, w, groundY); ctx.fill();
+    
+    // Земля
+    ctx.fillStyle = '#8f9ba8'; ctx.fillRect(0, groundY, w, 30);
+
+    // Сетки
+    ctx.fillStyle = '#334155'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 1; ctx.font = '9px monospace';
+    let xStep = viewMx > 1500 ? 250 : (viewMx > 600 ? 100 : (viewMx > 250 ? 50 : 20));
+    for (let xm = 0; xm <= 10000; xm += xStep) { 
+      const px = originX + xm * mScale; 
+      if (px > w - 10) break; 
+      ctx.beginPath(); ctx.moveTo(px, groundY); ctx.lineTo(px, groundY + 5); ctx.stroke(); 
+      ctx.fillText(xm, px - 6, groundY + 16); 
+    }
+    
+    ctx.beginPath(); ctx.moveTo(20, groundY); ctx.lineTo(20, 15); ctx.stroke(); ctx.fillText('y, м', 6, 12);
+    let yStep = viewMy > 400 ? 100 : (viewMy > 150 ? 50 : 20);
+    for (let ym = yStep; ym <= 5000; ym += yStep) { 
+      const py = groundY - ym * mScale; 
+      if (py < 20) break; 
+      ctx.beginPath(); ctx.moveTo(16, py); ctx.lineTo(20, py); ctx.stroke(); 
+      ctx.fillText(ym, 3, py + 3); 
+    }
+
+    // Башня
+    const canonY = groundY - h0 * mScale;
+    if (h0 > 0) { 
+      ctx.fillStyle = '#64748b'; ctx.fillRect(originX - 6, canonY, 12, groundY - canonY); 
+      ctx.strokeStyle = '#475569'; ctx.strokeRect(originX - 6, canonY, 12, groundY - canonY); 
+      ctx.fillStyle = '#64748b'; ctx.fillText(`h₀=${h0}м`, originX + 12, groundY - (h0 * mScale) / 2); 
+    }
+
+    // Призрак
+    if (ghostTraj) {
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.6)'; ctx.setLineDash([3, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(originX, groundY - ghostTraj.h0 * mScale);
+      for (let i = 1; i <= 60; i++) { 
+        const t = (ghostTraj.phys.tTotal * i) / 60; 
+        ctx.lineTo(originX + ghostTraj.phys.vx * t * mScale, groundY - (ghostTraj.h0 + ghostTraj.phys.vy * t - 0.5 * ghostTraj.g * t * t) * mScale); 
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    // Траектория
+    ctx.strokeStyle = '#334155'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(originX, canonY);
+    for (let i = 1; i <= 60; i++) { 
+      const t = (phys.tTotal * i) / 60; 
+      ctx.lineTo(originX + phys.vx * t * mScale, groundY - (h0 + phys.vy * t - 0.5 * g * t * t) * mScale); 
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Пушка
+    ctx.save(); ctx.translate(originX, canonY); ctx.rotate(-(angle * Math.PI) / 180); 
+    ctx.fillStyle = '#0f172a'; ctx.fillRect(0, -5, 26, 10); ctx.restore();
+    ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.arc(originX, canonY, 8, 0, Math.PI * 2); ctx.fill();
+
+    // Снаряд и тултип
+    const curY = Math.max(0, h0 + phys.vy * currentTime - 0.5 * g * currentTime * currentTime);
+    const curVy = phys.vy - g * currentTime;
+    const vFull = Math.sqrt(phys.vx * phys.vx + curVy * curVy);
+    
+    const bPx = originX + phys.vx * currentTime * mScale;
+    const bPy = groundY - curY * mScale;
+
+    // Векторы скорости
+    const vecScale = 0.4; // Масштаб для длины векторов
+    
+    // Вектор vx (синий)
+    ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; 
+    ctx.beginPath(); ctx.moveTo(bPx, bPy); ctx.lineTo(bPx + phys.vx * vecScale, bPy); ctx.stroke();
+    
+    // Вектор vy (зеленый вверх, оранжевый вниз)
+    ctx.strokeStyle = curVy >= 0 ? '#16a34a' : '#ea580c'; 
+    ctx.beginPath(); ctx.moveTo(bPx, bPy); ctx.lineTo(bPx, bPy - curVy * vecScale); ctx.stroke();
+    
+    // Шарик
+    ctx.fillStyle = '#0f172a'; ctx.beginPath(); ctx.arc(bPx, bPy, 5.5, 0, Math.PI * 2); ctx.fill();
+
+    // Темная плашка данных (как на скрине)
+    ctx.fillStyle = '#1e293b';
+    const boxW = 100, boxH = 46;
+    const boxX = Math.min(w - boxW - 6, Math.max(6, bPx - boxW / 2));
+    const boxY = Math.max(6, bPy - boxH - 12);
+
+    ctx.beginPath(); ctx.roundRect(boxX, boxY, boxW, boxH, 8); ctx.fill();
+    ctx.fillStyle = '#f8fafc'; ctx.font = '10px -apple-system, sans-serif';
+    ctx.fillText(`v:  ${vFull.toFixed(1)} м/с`, boxX + 10, boxY + 14);
+    ctx.fillText(`vx: ${phys.vx.toFixed(1)} м/с`, boxX + 10, boxY + 27);
+    ctx.fillText(`vy: ${curVy.toFixed(1)} м/с`, boxX + 10, boxY + 40);
+  }
+
+  let isDrag = false;
+  canvas.addEventListener('pointerdown', (e) => { isDrag = true; updateAnglePointer(e); canvas.setPointerCapture(e.pointerId); });
+  window.addEventListener('pointermove', (e) => { if (isDrag) updateAnglePointer(e); });
+  window.addEventListener('pointerup', () => isDrag = false);
+  
+  function updateAnglePointer(e) {
+    const rect = canvas.getBoundingClientRect(), groundY = rect.height - 30;
+    const phys = calcPhysics();
+    const mScale = Math.min((rect.width - 70) / (Math.max(120, phys.range * 1.15) / userZoom), (groundY - 30) / (Math.max(60, phys.maxH * 1.25) / userZoom));
+    const dx = (e.clientX - rect.left) - 42, dy = (groundY - h0 * mScale) - (e.clientY - rect.top);
+    if (dx > 0) setAngleVal(Math.max(0, Math.min(90, Math.round((Math.atan2(dy, dx) * 180) / Math.PI))));
+  }
+
+  window.addEventListener('resize', initCanvas);
+  setTimeout(initCanvas, 50);
+</script>
+
+</body>
+</html>

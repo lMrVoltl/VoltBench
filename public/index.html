@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VOLTAGE LAB</title>
+  <style>
+    :root { --bg: #f4f6fa; --text: #0f172a; --sub: #64748b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #cbd5e1; color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    
+    .app { width: 100%; max-width: 440px; background: var(--bg); height: 100vh; max-height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+
+    .screen { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--bg); position: absolute; top: 0; left: 0; z-index: 1; }
+    .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.96) translateY(15px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+    #screen-welcome { background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%); color: #fff; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 30; }
+    .w-logo { width: 80px; height: 80px; background: #fbbf24; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 48px; color: #0f172a; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(251,191,36,0.3); }
+    .w-title { font-size: 32px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; }
+    .w-sub { font-size: 15px; color: #94a3b8; margin-bottom: 48px; line-height: 1.5; }
+    .btn-start { background: #fbbf24; color: #0f172a; border: none; padding: 18px 40px; font-size: 18px; font-weight: 800; border-radius: 30px; cursor: pointer; box-shadow: 0 8px 24px rgba(251,191,36,0.4); transition: transform 0.2s; }
+    .btn-start:active { transform: scale(0.92); }
+
+    #screen-select { z-index: 20; background: #f8fafc; }
+    .sel-header { padding: 40px 20px 20px; background: #fff; border-bottom: 1px solid #e2e8f0; }
+    .sel-title { font-size: 28px; font-weight: 800; }
+    .sel-sub { font-size: 14px; color: var(--sub); margin-top: 4px; }
+    .sel-list { padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; padding-bottom: 40px; }
+    
+    .lab-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.02); transition: 0.1s; text-decoration: none; color: inherit; }
+    .lab-card:active { transform: scale(0.96); border-color: #cbd5e1; }
+    
+    .lab-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+    .icon-bal { background: #eef2ff; color: #4f46e5; }
+    .icon-optics { background: #f5f3ff; color: #8b5cf6; } /* Фиолетовый стиль для оптики */
+    .icon-graph { background: #f0fdf4; color: #16a34a; }
+    .icon-book { background: #fef3c7; color: #d97706; }
+    
+    .lab-info-title { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .lab-info-sub { font-size: 13px; color: var(--sub); line-height: 1.3; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Приветственный экран -->
+  <div id="screen-welcome" class="screen active">
+    <div class="w-logo">⚡</div>
+    <div class="w-title">VOLTAGE LAB</div>
+    <div class="w-sub">Интерактивные симуляции<br>для углубленного изучения физики и математики</div>
+    <button class="btn-start" onclick="document.getElementById('screen-welcome').classList.remove('active'); document.getElementById('screen-select').classList.add('active');">Начать работу</button>
+  </div>
+
+  <!-- Экран выбора модулей -->
+  <div id="screen-select" class="screen">
+    <div class="sel-header">
+      <div class="sel-title">Модули</div>
+      <div class="sel-sub">Выберите симуляцию или теорию</div>
+    </div>
+    <div class="sel-list">
+      
+      <a href="physics.html" class="lab-card">
+        <div class="lab-icon icon-bal">🚀</div>
+        <div>
+          <div class="lab-info-title">Баллистика</div>
+          <div class="lab-info-sub">Кинематика, динамика и энергии (10–11 класс)</div>
+        </div>
+      </a>
+
+      <a href="optics.html" class="lab-card">
+        <div class="lab-icon icon-optics">🔍</div>
+        <div>
+          <div class="lab-info-title">Геометрическая оптика</div>
+          <div class="lab-info-sub">Тонкие линзы и построение изображений (8–11 класс)</div>
+        </div>
+      </a>
+
+      <a href="graph.html" class="lab-card">
+        <div class="lab-icon icon-graph">📈</div>
+        <div>
+          <div class="lab-info-title">Графопостроитель</div>
+          <div class="lab-info-sub">Построение и анализ математических функций</div>
+        </div>
+      </a>
+
+      <a href="reference.html" class="lab-card">
+        <div class="lab-icon icon-book">📚</div>
+        <div>
+          <div class="lab-info-title">Справочник</div>
+          <div class="lab-info-sub">Формулы по физике и синтаксис графиков</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

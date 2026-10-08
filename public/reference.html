@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VOLTAGE LAB — Справочник</title>
+  <!-- Библиотека для красивых формул -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root { --bg: #f4f6fa; --text: #0f172a; --sub: #64748b; --border: #e2e8f0; --warning: #d97706; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: #cbd5e1; color: var(--text); display: flex; justify-content: center; min-height: 100vh; margin: 0; }
+    
+    .app { width: 100%; max-width: 440px; background: var(--bg); height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+
+    /* Шапка */
+    .header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fff; flex-shrink: 0; }
+    .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; margin-right: 8px; color: #0f172a; text-decoration: none; }
+    .back-btn:active { background: #f1f5f9; }
+    .brand-wrap { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .brand-logo { width: 22px; height: 22px; background: #111827; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fbbf24; font-weight: 900; font-size: 13px; }
+    .title { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+    .badge { font-size: 11px; font-weight: 700; background: #fef3c7; color: var(--warning); padding: 4px 8px; border-radius: 6px; border: 1px solid #fde68a; }
+
+    /* Контент */
+    .content { flex: 1; overflow-y: auto; padding: 20px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+    
+    .section-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-top: 8px; margin-bottom: -4px; padding-left: 4px; }
+    
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+    
+    .formula-row { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 12px; }
+    .formula-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .f-desc { font-size: 13px; font-weight: 600; color: var(--sub); }
+    .f-math { font-size: 16px; overflow-x: auto; padding: 4px 0; }
+
+    /* Таблица для графиков */
+    .syntax-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .syntax-table th { text-align: left; font-size: 11px; color: var(--sub); padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .syntax-table td { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .syntax-table tr:last-child td { border-bottom: none; }
+    .code-chip { background: #f1f5f9; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-weight: 700; color: #ef4444; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <a href="index.html" class="back-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="brand-wrap">
+      <div class="brand-logo">⚡</div>
+      <div class="title">VOLTAGE LAB</div>
+    </div>
+    <div class="badge">СПРАВОЧНИК</div>
+  </div>
+
+  <div class="content">
+    
+    <div class="section-title">Баллистика (10 класс)</div>
+    <div class="card">
+      <div class="formula-row">
+        <div class="f-desc">Проекции начальной скорости</div>
+        <div class="f-math">$$v_{0x} = v_0 \cos\alpha \quad \text{и} \quad v_{0y} = v_0 \sin\alpha$$</div>
+      </div>
+      <div class="formula-row">
+        <div class="f-desc">Уравнения движения (координаты)</div>
+        <div class="f-math">$$x(t) = v_{0x} t$$</div>
+        <div class="f-math">$$y(t) = h_0 + v_{0y} t - \frac{gt^2}{2}$$</div>
+      </div>
+      <div class="formula-row">
+        <div class="f-desc">Максимальная высота подъема (при h₀=0)</div>
+        <div class="f-math">$$H_{max} = \frac{v_0^2 \sin^2\alpha}{2g}$$</div>
+      </div>
+      <div class="formula-row">
+        <div class="f-desc">Дальность полета (при h₀=0)</div>
+        <div class="f-math">$$L = \frac{v_0^2 \sin(2\alpha)}{g}$$</div>
+      </div>
+    </div>
+
+    <div class="section-title">Динамика и ЗСЭ (11 класс)</div>
+    <div class="card">
+      <div class="formula-row">
+        <div class="f-desc">Механическая энергия</div>
+        <div class="f-math">$$E_k = \frac{mv^2}{2} \quad \text{(кинетическая)}$$</div>
+        <div class="f-math">$$E_p = mgh \quad \text{(потенциальная)}$$</div>
+      </div>
+      <div class="formula-row">
+        <div class="f-desc">Нормальное и тангенциальное ускорение</div>
+        <div class="f-math">$$a_n = g \cos\theta \quad a_\tau = g \sin\theta$$</div>
+        <div style="font-size: 11px; color: #64748b;">(где $\theta$ — угол наклона вектора скорости к горизонту)</div>
+      </div>
+      <div class="formula-row">
+        <div class="f-desc">Радиус кривизны траектории</div>
+        <div class="f-math">$$R = \frac{v^2}{a_n} = \frac{v^2}{g \cos\theta}$$</div>
+      </div>
+    </div>
+
+    <div class="section-title">Графопостроитель (Синтаксис)</div>
+    <div class="card">
+      <table class="syntax-table">
+        <tr><th>МАТЕМАТИКА</th><th>КАК ВВОДИТЬ В ПОЛЕ</th></tr>
+        <tr>
+          <td>Степень ($x^2$, $x^3$)</td>
+          <td><span class="code-chip">x^2</span>, <span class="code-chip">x^3</span></td>
+        </tr>
+        <tr>
+          <td>Дроби ($\frac{1}{x}$)</td>
+          <td><span class="code-chip">1 / x</span></td>
+        </tr>
+        <tr>
+          <td>Квадратный корень ($\sqrt{x}$)</td>
+          <td><span class="code-chip">sqrt(x)</span></td>
+        </tr>
+        <tr>
+          <td>Модуль ($|x|$)</td>
+          <td><span class="code-chip">abs(x)</span></td>
+        </tr>
+        <tr>
+          <td>Тригонометрия</td>
+          <td><span class="code-chip">sin(x)</span>, <span class="code-chip">cos(x)</span>, <span class="code-chip">tan(x)</span></td>
+        </tr>
+        <tr>
+          <td>Логарифм ($\ln x$)</td>
+          <td><span class="code-chip">log(x)</span></td>
+        </tr>
+        <tr>
+          <td>Экспонента ($e^x$)</td>
+          <td><span class="code-chip">exp(x)</span></td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

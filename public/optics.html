@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VOLTAGE LAB — Оптика</title>
+  <style>
+    :root { --bg: #f4f6fa; --card: #ffffff; --text: #0f172a; --sub: #94a3b8; --border: #e2e8f0; --primary: #0f172a; --voltage: #6366f1; --accent: #2563eb; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; }
+    
+    .app { width: 100%; max-width: 440px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; padding-bottom: 40px; }
+
+    /* Шапка */
+    .header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fff; z-index: 10; flex-shrink: 0; }
+    .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; margin-right: 8px; color: #0f172a; text-decoration: none; }
+    .back-btn:active { background: #f1f5f9; }
+    .brand-wrap { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .brand-logo { width: 22px; height: 22px; background: #111827; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fbbf24; font-weight: 900; font-size: 13px; }
+    .title { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+    .badge { font-size: 11px; font-weight: 700; background: #fef3c7; color: #d97706; padding: 4px 8px; border-radius: 6px; border: 1px solid #fde68a; }
+
+    /* Холст */
+    .viewport { position: relative; width: 100%; height: 300px; background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); flex-shrink: 0; border-bottom: 1px solid var(--border); touch-action: none; overflow: hidden; }
+    .viewport canvas { width: 100%; height: 100%; display: block; }
+    
+    /* Контент */
+    .content { padding: 20px 16px 16px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
+    .card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .card-head { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; }
+    .card-title-dot { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+    .card-title-dot::before { content: ""; width: 7px; height: 7px; background: #0f172a; border-radius: 50%; }
+    
+    .stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 4px; }
+    .s-item { border-right: 1px solid #edf0f5; }
+    .s-item:last-child { border-right: none; }
+    .s-label { font-size: 10px; color: var(--sub); line-height: 1.2; margin-bottom: 4px; }
+    .s-val { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .s-unit { font-size: 11px; font-weight: 500; color: var(--sub); }
+    
+    .stepper { display: inline-flex; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 1px 3px; }
+    .step-btn { background: none; border: none; font-size: 17px; font-weight: 600; width: 28px; height: 28px; cursor: pointer; color: #475569; }
+    .step-val { min-width: 62px; text-align: center; font-size: 13px; font-weight: 700; }
+    input[type=range] { width: 100%; accent-color: #0f172a; height: 5px; background: #e2e8f0; border-radius: 3px; outline: none; }
+    
+    .presets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .p-chip { padding: 10px 0; border: 1px solid var(--border); background: #fff; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; color: #334155; }
+    .p-chip.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <a href="index.html" class="back-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="brand-wrap">
+      <div class="brand-logo">⚡</div>
+      <div class="title">VOLTAGE LAB</div>
+    </div>
+    <div class="badge">ОПТИКА</div>
+  </div>
+
+  <div class="viewport">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="content">
+    
+    <!-- Данные линзы и изображения -->
+    <div class="card">
+      <div class="card-title-dot">Параметры изображения (Линза)</div>
+      <div class="stats-grid-4">
+        <div class="s-item"><div class="s-label">Предмет d</div><div class="s-val" id="rD">40</div><div class="s-unit">см</div></div>
+        <div class="s-item"><div class="s-label">Изображ. f</div><div class="s-val" id="rFimg">40</div><div class="s-unit">см</div></div>
+        <div class="s-item"><div class="s-label">Увеличение &Gamma;</div><div class="s-val" id="rMag">1.0</div><div class="s-unit">раз</div></div>
+        <div class="s-item"><div class="s-label">Фокус F</div><div class="s-val" id="rF">20</div><div class="s-unit">см</div></div>
+      </div>
+      <div class="stats-grid-4" style="border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+        <div class="s-item"><div class="s-label">Оптич. сила D</div><div class="s-val" id="rDopt">5.0</div><div class="s-unit">дптр</div></div>
+        <div class="s-item" style="grid-column: span 3;"><div class="s-label">Тип изображения</div><div class="s-val" id="rType" style="color: #ea580c; font-size: 13px; margin-top:2px;">Действительное, перевернутое</div><div class="s-unit"></div></div>
+      </div>
+    </div>
+
+    <!-- Фокусное расстояние -->
+    <div class="card">
+      <div class="card-head">
+        <span>Фокус линзы F (см)</span>
+        <div class="stepper"><button class="step-btn" onclick="changeF(-5)">-</button><span class="step-val" id="fTxt">20</span><button class="step-btn" onclick="changeF(5)">+</button></div>
+      </div>
+      <input type="range" id="fRange" min="-50" max="50" step="1" value="20" oninput="setFVal(this.value)">
+      <div class="presets">
+        <button class="p-chip active" id="btnConv" onclick="setFVal(20)">Собирающая линза (+)</button>
+        <button class="p-chip" id="btnDiv" onclick="setFVal(-20)">Рассеивающая линза (-)</button>
+      </div>
+    </div>
+
+    <!-- Расстояние d -->
+    <div class="card">
+      <div class="card-head">
+        <span>Расстояние до предмета d (см)</span>
+        <div class="stepper"><button class="step-btn" onclick="changeD(-5)">-</button><span class="step-val" id="dTxt">40</span><button class="step-btn" onclick="changeD(5)">+</button></div>
+      </div>
+      <input type="range" id="dRange" min="5" max="100" value="40" oninput="setDVal(this.value)">
+    </div>
+
+    <!-- Высота предмета -->
+    <div class="card">
+      <div class="card-head">
+        <span>Высота предмета h (см)</span>
+        <div class="stepper"><button class="step-btn" onclick="changeH(-1)">-</button><span class="step-val" id="hTxt">15</span><button class="step-btn" onclick="changeH(1)">+</button></div>
+      </div>
+      <input type="range" id="hRange" min="2" max="40" value="15" oninput="setHVal(this.value)">
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  let F = 20; // Фокус (см)
+  let d = 40; // Расстояние до предмета (см)
+  let h_obj = 15; // Высота предмета (см)
+
+  function initCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.parentElement.clientWidth * dpr;
+    canvas.height = canvas.parentElement.clientHeight * dpr;
+    ctx.resetTransform();
+    ctx.scale(dpr, dpr);
+    calcAndDraw();
+  }
+
+  function setFVal(val) {
+    F = Number(val);
+    if (F === 0) F = 1; // Защита от нуля
+    document.getElementById('fTxt').innerText = F;
+    document.getElementById('fRange').value = F;
+    
+    document.getElementById('btnConv').classList.toggle('active', F > 0);
+    document.getElementById('btnDiv').classList.toggle('active', F < 0);
+    calcAndDraw();
+  }
+  function changeF(delta) { setFVal(Math.max(-50, Math.min(50, F + delta))); }
+
+  function setDVal(val) {
+    d = Number(val);
+    document.getElementById('dTxt').innerText = d;
+    document.getElementById('dRange').value = d;
+    calcAndDraw();
+  }
+  function changeD(delta) { setDVal(Math.max(5, Math.min(100, d + delta))); }
+
+  function setHVal(val) {
+    h_obj = Number(val);
+    document.getElementById('hTxt').innerText = h_obj;
+    document.getElementById('hRange').value = h_obj;
+    calcAndDraw();
+  }
+  function changeH(delta) { setHVal(Math.max(2, Math.min(40, h_obj + delta))); }
+
+  function calcAndDraw() {
+    // --- ФИЗИКА (Формула тонкой линзы: 1/F = 1/d + 1/f) ---
+    let f_img = 0;
+    if (d === F) {
+      f_img = Infinity; // Нет изображения (лучи параллельны)
+    } else {
+      f_img = (d * F) / (d - F);
+    }
+
+    let mag = Math.abs(f_img / d);
+    let h_img = -h_obj * (f_img / d); // Знак минус: если f>0, то изображение перевернуто
+    let Dopt = 100 / F; // Диоптрии (предполагаем, что cm переводим в метры: 1 / (F/100))
+
+    // Обновляем текст
+    document.getElementById('rD').innerText = d;
+    document.getElementById('rFimg').innerText = f_img === Infinity ? '∞' : Math.abs(f_img).toFixed(1);
+    document.getElementById('rMag').innerText = f_img === Infinity ? '-' : mag.toFixed(2);
+    document.getElementById('rF').innerText = F;
+    document.getElementById('rDopt').innerText = Dopt.toFixed(2);
+
+    let typeStr = "";
+    if (f_img === Infinity) {
+      typeStr = "Изображения нет";
+      document.getElementById('rType').style.color = '#94a3b8';
+    } else {
+      let isReal = f_img > 0;
+      let isInverted = h_img < 0;
+      typeStr = (isReal ? "Действ., " : "Мнимое, ") + (isInverted ? "перевернутое" : "прямое");
+      if (!isReal) typeStr += (mag > 1 ? " (увелич.)" : " (уменьш.)");
+      document.getElementById('rType').style.color = isReal ? '#16a34a' : '#ea580c';
+    }
+    document.getElementById('rType').innerText = typeStr;
+
+    // --- ОТРИСОВКА ---
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+    ctx.clearRect(0, 0, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    // Масштаб: чтобы 100см влезало в экран
+    const scale = w / 220; 
+
+    // Фон сетка
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let i=0; i<w; i+=20) { ctx.moveTo(i, 0); ctx.lineTo(i, h); }
+    for(let i=0; i<h; i+=20) { ctx.moveTo(0, i); ctx.lineTo(w, i); }
+    ctx.stroke();
+
+    // Главная оптическая ось
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Линза (по центру)
+    ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx, 20); ctx.lineTo(cx, h - 20); ctx.stroke();
+    
+    // Стрелочки линзы
+    ctx.beginPath();
+    if (F > 0) { // Собирающая
+      ctx.moveTo(cx - 6, 28); ctx.lineTo(cx, 20); ctx.lineTo(cx + 6, 28);
+      ctx.moveTo(cx - 6, h - 28); ctx.lineTo(cx, h - 20); ctx.lineTo(cx + 6, h - 28);
+    } else { // Рассеивающая
+      ctx.moveTo(cx - 6, 20); ctx.lineTo(cx, 28); ctx.lineTo(cx + 6, 20);
+      ctx.moveTo(cx - 6, h - 20); ctx.lineTo(cx, h - 28); ctx.lineTo(cx + 6, h - 20);
+    }
+    ctx.stroke();
+
+    // Фокусы
+    const F_px = Math.abs(F) * scale;
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath(); ctx.arc(cx - F_px, cy, 4, 0, Math.PI*2); ctx.fill(); // Передний фокус
+    ctx.beginPath(); ctx.arc(cx + F_px, cy, 4, 0, Math.PI*2); ctx.fill(); // Задний фокус
+    ctx.font = '12px sans-serif'; ctx.fillText('F', cx - F_px - 4, cy + 16); ctx.fillText('F', cx + F_px - 4, cy + 16);
+
+    // Координаты предмета
+    const x0 = cx - d * scale;
+    const y0 = cy - h_obj * scale; // Ось Y в canvas идет вниз, поэтому минус
+
+    // Функция рисования стрелки
+    function drawArrow(x, y_base, y_top, color) {
+      ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath();
+      ctx.moveTo(x, y_base); ctx.lineTo(x, y_top); ctx.stroke();
+      // Наконечник
+      ctx.fillStyle = color; ctx.beginPath();
+      let dir = y_top < y_base ? 1 : -1;
+      ctx.moveTo(x, y_top); ctx.lineTo(x - 5, y_top + 8 * dir); ctx.lineTo(x + 5, y_top + 8 * dir); ctx.fill();
+    }
+
+    // Предмет (Голубой)
+    drawArrow(x0, cy, y0, '#38bdf8');
+
+    // Если нет изображения (d = F) - рисуем только параллельные лучи
+    if (f_img === Infinity) {
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(x0, y0); ctx.lineTo(cx, y0); ctx.lineTo(cx + 1000, y0 + 1000 * ((cy - y0) / F_px)); ctx.stroke();
+      ctx.strokeStyle = '#10b981'; ctx.beginPath();
+      ctx.moveTo(x0, y0); ctx.lineTo(cx + 1000, cy + 1000 * ((cy - y0) / (cx - x0))); ctx.stroke();
+      return;
+    }
+
+    // Координаты изображения
+    const xi = cx + f_img * scale;
+    const yi = cy - h_img * scale;
+
+    // --- ЛУЧ 1: Параллельно оси, затем через фокус ---
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(cx, y0); ctx.stroke(); // До линзы
+    
+    ctx.beginPath();
+    if (f_img > 0) {
+      // Действительное: луч идет прямо в изображение
+      ctx.moveTo(cx, y0);
+      let dx = xi - cx, dy = yi - y0;
+      ctx.lineTo(cx + dx*10, y0 + dy*10); 
+      ctx.stroke();
+    } else {
+      // Мнимое: луч идет вправо, а влево пунктир
+      let dx = xi - cx, dy = yi - y0;
+      ctx.moveTo(cx, y0); ctx.lineTo(cx - dx*10, y0 - dy*10); ctx.stroke(); // Реальный луч
+      ctx.setLineDash([5,5]); ctx.beginPath();
+      ctx.moveTo(cx, y0); ctx.lineTo(cx + dx*10, y0 + dy*10); ctx.stroke(); // Мнимый след
+      ctx.setLineDash([]);
+    }
+
+    // --- ЛУЧ 2: Через оптический центр ---
+    ctx.strokeStyle = '#10b981';
+    ctx.beginPath();
+    ctx.moveTo(x0, y0); ctx.lineTo(cx, cy); ctx.stroke(); // До линзы
+    
+    ctx.beginPath();
+    let dx2 = cx - x0, dy2 = cy - y0;
+    ctx.moveTo(cx, cy); ctx.lineTo(cx + dx2*10, cy + dy2*10); ctx.stroke(); // Реальный луч дальше
+    
+    if (f_img < 0) {
+      // Для мнимого пунктир назад
+      ctx.setLineDash([5,5]); ctx.beginPath();
+      ctx.moveTo(cx, cy); ctx.lineTo(cx - dx2*10, cy - dy2*10); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // Изображение (Оранжевый)
+    drawArrow(xi, cy, yi, '#f59e0b');
+  }
+
+  window.addEventListener('resize', initCanvas);
+  setTimeout(initCanvas, 50);
+</script>
+
+</body>
+</html>
