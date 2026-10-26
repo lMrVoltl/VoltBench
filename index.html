@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VoltBench Mobile ⚡</title>
+    <style>
+        :root {
+            --bg: #090b10;
+            --card-bg: #121620;
+            --card-border: #1e2536;
+            --volt: #ffe600;
+            --cyan: #00f0ff;
+            --green: #10b981;
+            --orange: #f59e0b;
+            --purple: #a855f7;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 16px;
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 230, 0, 0.1);
+            border: 1px solid rgba(255, 230, 0, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--volt);
+        }
+
+        .brand-text h1 {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-text h1 span {
+            color: var(--volt);
+        }
+
+        .badge-mobile {
+            font-size: 10px;
+            background: #202636;
+            color: var(--cyan);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #121620;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #1e2638;
+            color: var(--volt);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--cyan);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .spec-item {
+            background: #0d1017;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #1a202c;
+        }
+
+        .spec-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .spec-val {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .input-group {
+            margin-top: 14px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: #0d1017;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+            color: #fff;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--volt);
+        }
+
+        .btn-start {
+            width: 100%;
+            background: linear-gradient(135deg, #ffe600, #ffb700);
+            border: none;
+            color: #000;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 230, 0, 0.2);
+            transition: opacity 0.2s;
+        }
+
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-box {
+            display: none;
+            margin-top: 16px;
+            padding: 14px;
+            background: #0d1017;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-bg {
+            height: 6px;
+            background: #1a202c;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--volt);
+            transition: width 0.2s linear;
+        }
+
+        .metric-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0d1017;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #1a202c;
+        }
+
+        .metric-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .metric-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .metric-pts {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--volt);
+        }
+
+        .total-box {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255, 230, 0, 0.05);
+            border: 1px solid rgba(255, 230, 0, 0.2);
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+
+        .total-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .total-score {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--volt);
+            margin: 4px 0;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .tier-s { background: rgba(168, 85, 247, 0.2); color: var(--purple); border: 1px solid var(--purple); }
+        .tier-a { background: rgba(0, 240, 255, 0.2); color: var(--cyan); border: 1px solid var(--cyan); }
+        .tier-b { background: rgba(16, 185, 129, 0.2); color: var(--green); border: 1px solid var(--green); }
+        .tier-c { background: rgba(245, 158, 11, 0.2); color: var(--orange); border: 1px solid var(--orange); }
+
+        .ai-matrix {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ai-model-card {
+            background: #0d1017;
+            border: 1px solid #1a202c;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-model-info h5 {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .ai-model-info p {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .ai-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
+
+        .status-ok { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+        .status-mid { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
+        .status-bad { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+        .filter-select {
+            width: 100%;
+            background: #0d1017;
+            border: 1px solid var(--card-border);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 14px;
+        }
+
+        .leader-item {
+            background: #0d1017;
+            border: 1px solid #1a202c;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .rank-col {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-muted);
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .rank-1 { color: #ffd700; }
+        .rank-2 { color: #c0c0c0; }
+        .rank-3 { color: #cd7f32; }
+
+        .leader-data {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .leader-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .leader-user {
+            font-weight: 800;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .leader-device {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .leader-soc {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--cyan);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .leader-score {
+            text-align: right;
+            min-width: 80px;
+        }
+
+        .leader-score .num {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--volt);
+        }
+
+        .leader-score .lbl {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .btn-history-toggle {
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 10px;
+            color: var(--cyan);
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 3px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-publish {
+            width: 100%;
+            background: #1e2638;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            font-weight: 700;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: #121620;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #1e2536;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 14px;
+            color: var(--volt);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-card {
+            background: #0d1017;
+            border: 1px solid #1a202c;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .history-date {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .history-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-score {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--volt);
+        }
+
+        .history-breakdown {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand">
+            <div class="brand-logo">⚡</div>
+            <div class="brand-text">
+                <h1>Volt<span>Bench</span><span class="badge-mobile">MOBILE</span></h1>
+            </div>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('test')">Тест</button>
+            <button class="tab-btn" onclick="switchTab('leaderboard')">Топы</button>
+        </div>
+    </div>
+
+    <!-- ВКЛАДКА 1: ТЕСТ И БЕНЧМАРК -->
+    <div id="tab-test">
+        <div class="card">
+            <div class="card-title">📱 Паспорт кремния</div>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Устройство</div>
+                    <div class="spec-val" id="spec-device">Загрузка...</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Процессор (SoC)</div>
+                    <div class="spec-val" id="spec-soc" style="color: var(--cyan);">Определение...</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Ядра / Потоки</div>
+                    <div class="spec-val" id="spec-cores">--</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">GPU Графика</div>
+                    <div class="spec-val" id="spec-gpu">--</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Позывной (Никнейм) для лидерборда:</label>
+                <input type="text" id="user-name" placeholder="MrVolt" value="MrVolt">
+            </div>
+
+            <button class="btn-start" id="btn-run" onclick="startHeavyBenchmark()">🔥 Запустить стресс-тест</button>
+
+            <div class="status-box" id="status-box">
+                <div class="status-header">
+                    <span id="status-title" style="color: var(--volt);">Прогрев ядер...</span>
+                    <span id="status-time">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="results-card" style="display: none;">
+            <div class="card-title">⚡ Итоги испытаний VoltScore</div>
+            
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h4>Эмуляция (Single-Core JIT)</h4>
+                    <p>Битовые сдвиги, переходы, команды ALU</p>
+                </div>
+                <div class="metric-pts" id="res-emu">0 pts</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h4>Игры и физика (Multi-Core FP32)</h4>
+                    <p>N-body расчет всех ядер на 100% мощности</p>
+                </div>
+                <div class="metric-pts" id="res-game">0 pts</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-info">
+                    <h4>ИИ Тензоры (INT8 GEMM)</h4>
+                    <p>Квантованная матричная математика для LLM</p>
+                </div>
+                <div class="metric-pts" id="res-ai">0 pts</div>
+            </div>
+
+            <div class="total-box">
+                <div class="total-title">Финальный результат (VoltScore)</div>
+                <div class="total-score" id="res-total">0</div>
+                <div class="tier-badge tier-b" id="res-tier">TIER EVAL</div>
+            </div>
+
+            <button class="btn-publish" id="btn-pub" onclick="publishScore()">🏆 Отправить результат на Сервер</button>
+
+            <div style="margin-top: 18px;">
+                <div class="card-title" style="color: var(--text-main); font-size: 13px;">
+                    🧠 Совместимость с локальными нейросетями (LLM):
+                </div>
+                <div class="ai-matrix" id="ai-matrix"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ВКЛАДКА 2: ЛИДЕРБОРД -->
+    <div id="tab-leaderboard" style="display: none;">
+        <div class="card">
+            <div class="card-title">🏆 Зал Славы (Серверная База)</div>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">
+                3 главные строчки: Никнейм, Устройство и Процессор. Показан последний результат каждого игрока.
+            </p>
+
+            <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px;">Фильтр процессоров:</label>
+            <select class="filter-select" id="soc-filter" onchange="loadLeaderboard()">
+                <option value="ALL">Все процессоры (Общий абсолютный топ)</option>
+                <option value="Snapdragon 7 Gen 1">Snapdragon 7 Gen 1 (SM7450)</option>
+                <option value="Snapdragon 8 Gen 3">Snapdragon 8 Gen 3</option>
+                <option value="Snapdragon 8 Elite">Snapdragon 8 Elite</option>
+                <option value="Dimensity">MediaTek Dimensity</option>
+                <option value="Apple">Apple Silicon</option>
+            </select>
+
+            <div id="leaderboard-list"></div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ИСТОРИИ -->
+    <div class="modal" id="history-modal" onclick="closeHistoryModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="history-user-title">📊 Статистика игрока</h3>
+                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="history-runs-list"></div>
+        </div>
+    </div>
+
+    <script>
+        let detectedSpecs = {
+            device: "Android Смартфон",
+            soc: "ARM64 Архитектура",
+            cores: navigator.hardwareConcurrency || 8,
+            gpu: "Qualcomm Adreno / Mali"
+        };
+
+        function detectHardware() {
+            detectedSpecs.cores = navigator.hardwareConcurrency || 8;
+            document.getElementById('spec-cores').innerText = `${detectedSpecs.cores} потоков`;
+
+            const ua = navigator.userAgent;
+            if (/REA-NX9|Honor 90/i.test(ua)) {
+                detectedSpecs.device = "HONOR 90 (REA-NX9)";
+                detectedSpecs.soc = "Snapdragon 7 Gen 1";
+            } else if (/Pixel/i.test(ua)) {
+                detectedSpecs.device = "Google Pixel";
+                detectedSpecs.soc = "Google Tensor";
+            } else if (/Samsung|SM-/i.test(ua)) {
+                detectedSpecs.device = "Samsung Galaxy";
+                detectedSpecs.soc = "Snapdragon / Exynos";
+            } else if (/iPhone/i.test(ua)) {
+                detectedSpecs.device = "Apple iPhone";
+                detectedSpecs.soc = "Apple Bionic";
+            }
+
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (debugInfo) {
+                        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                        detectedSpecs.gpu = renderer.replace(/ANGLE \(|Direct3D.*|\)/g, '').trim();
+
+                        if (/Adreno \(TM\) 644/i.test(renderer)) detectedSpecs.soc = "Snapdragon 7 Gen 1";
+                        else if (/Adreno \(TM\) 750/i.test(renderer)) detectedSpecs.soc = "Snapdragon 8 Gen 3";
+                        else if (/Adreno \(TM\) 740/i.test(renderer)) detectedSpecs.soc = "Snapdragon 8 Gen 2";
+                        else if (/Adreno \(TM\) 830/i.test(renderer)) detectedSpecs.soc = "Snapdragon 8 Elite";
+                        else if (/Mali-G720|Immortalis/i.test(renderer)) detectedSpecs.soc = "Dimensity 9300";
+                    }
+                }
+            } catch (e) {}
+
+            document.getElementById('spec-device').innerText = detectedSpecs.device;
+            document.getElementById('spec-soc').innerText = detectedSpecs.soc;
+            document.getElementById('spec-gpu').innerText = detectedSpecs.gpu;
+        }
+        detectHardware();
+
+        // Web Worker внутри Blob для честного многопотока
+        const workerSourceCode = `
+            self.onmessage = function(e) {
+                const { task, durationMs, workerId } = e.data;
+                const startTime = performance.now();
+                let ops = 0;
+
+                if (task === 'warmup') {
+                    let sum = 0;
+                    while (performance.now() - startTime < durationMs) {
+                        for (let i = 0; i < 50000; i++) sum += (i ^ 0x5A) * 3;
+                        ops += 50000;
+                    }
+                    self.postMessage({ task, ops, workerId });
+                } 
+                else if (task === 'emulation') {
+                    let reg0 = 1, reg1 = 2, reg2 = 3, reg3 = 4, pc = 0;
+                    const mem = new Uint8Array(256);
+                    for (let i = 0; i < 256; i++) mem[i] = (i * 37) & 0xFF;
+                    while (performance.now() - startTime < durationMs) {
+                        for (let i = 0; i < 100000; i++) {
+                            const op = mem[pc & 0xFF];
+                            switch (op & 0x03) {
+                                case 0: reg0 = (reg0 + reg1) ^ reg2; break;
+                                case 1: reg1 = (reg1 << 2) | (reg2 >> 30); break;
+                                case 2: reg2 ^= (reg3 + 0x9e3779b9); break;
+                                case 3: reg3 = (reg0 * 33) ^ reg1; break;
+                            }
+                            pc = (pc + 1) ^ (reg0 & 0x01);
+                        }
+                        ops += 100000;
+                    }
+                    self.postMessage({ task, ops, workerId });
+                } 
+                else if (task === 'gaming') {
+                    const n = 64;
+                    const px = new Float32Array(n), py = new Float32Array(n);
+                    const vx = new Float32Array(n), vy = new Float32Array(n);
+                    for (let i = 0; i < n; i++) { px[i] = i * 0.1; py[i] = i * 0.2; }
+                    while (performance.now() - startTime < durationMs) {
+                        for (let step = 0; step < 100; step++) {
+                            for (let i = 0; i < n; i++) {
+                                let fx = 0, fy = 0;
+                                for (let j = 0; j < n; j++) {
+                                    const dx = px[j] - px[i];
+                                    const dy = py[j] - py[i];
+                                    const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
+                                    const f = 1.0 / (dist * dist * dist);
+                                    fx += dx * f; fy += dy * f;
+                                }
+                                vx[i] += fx * 0.001; vy[i] += fy * 0.001;
+                                px[i] += vx[i]; py[i] += vy[i];
+                            }
+                        }
+                        ops += (n * n * 100);
+                    }
+                    self.postMessage({ task, ops, workerId });
+                } 
+                else if (task === 'ai') {
+                    const N = 64;
+                    const A = new Int8Array(N * N).fill(2);
+                    const B = new Int8Array(N * N).fill(3);
+                    const C = new Int32Array(N * N);
+                    while (performance.now() - startTime < durationMs) {
+                        for (let rep = 0; rep < 5; rep++) {
+                            for (let i = 0; i < N; i++) {
+                                for (let j = 0; j < N; j++) {
+                                    let s = 0;
+                                    for (let k = 0; k < N; k++) s += A[i * N + k] * B[k * N + j];
+                                    C[i * N + j] = s;
+                                }
+                            }
+                        }
+                        ops += (2 * N * N * N * 5);
+                    }
+                    self.postMessage({ task, ops, workerId });
+                }
+            };
+        `;
+        const blob = new Blob([workerSourceCode], { type: 'application/javascript' });
+        const workerUrl = URL.createObjectURL(blob);
+
+        function runParallelWorkers(task, durationMs, threadsCount) {
+            return new Promise((resolve) => {
+                let completed = 0, totalOps = 0;
+                for (let i = 0; i < threadsCount; i++) {
+                    const w = new Worker(workerUrl);
+                    w.onmessage = (e) => {
+                        totalOps += e.data.ops;
+                        completed++;
+                        w.terminate();
+                        if (completed === threadsCount) resolve(totalOps);
+                    };
+                    w.postMessage({ task, durationMs, workerId: i });
+                }
+            });
+        }
+
+        let currentRun = {};
+
+        async function startHeavyBenchmark() {
+            const btn = document.getElementById('btn-run');
+            const statusBox = document.getElementById('status-box');
+            const statusTitle = document.getElementById('status-title');
+            const statusTime = document.getElementById('status-time');
+            const pBar = document.getElementById('progress-bar');
+            const resultsCard = document.getElementById('results-card');
+
+            btn.disabled = true;
+            statusBox.style.display = 'block';
+            resultsCard.style.display = 'none';
+
+            const threads = detectedSpecs.cores;
+            const STRESS_STEP_TIME = 3500;
+
+            statusTitle.innerText = "🔥 Разогрев ядер (Warmup)...";
+            statusTime.innerText = "15%";
+            pBar.style.width = "15%";
+            await runParallelWorkers('warmup', 1800, threads);
+
+            statusTitle.innerText = "🕹️ Тест 1/3: Эмуляция Single-Core JIT...";
+            statusTime.innerText = "40%";
+            pBar.style.width = "40%";
+            const emuOps = await runParallelWorkers('emulation', STRESS_STEP_TIME, 1);
+            const emuScore = Math.round((emuOps / (STRESS_STEP_TIME * 1000)) * 12);
+
+            statusTitle.innerText = `🎮 Тест 2/3: Физика и игры (${threads} ядер)...`;
+            statusTime.innerText = "70%";
+            pBar.style.width = "70%";
+            const gameOps = await runParallelWorkers('gaming', STRESS_STEP_TIME, threads);
+            const gameScore = Math.round((gameOps / (STRESS_STEP_TIME * 1000)) * 1.8);
+
+            statusTitle.innerText = `🧠 Тест 3/3: Тензорные ИИ вычисления (${threads} ядер)...`;
+            statusTime.innerText = "95%";
+            pBar.style.width = "95%";
+            const aiOps = await runParallelWorkers('ai', STRESS_STEP_TIME, threads);
+            const aiScore = Math.round((aiOps / (STRESS_STEP_TIME * 1000)) * 0.25);
+
+            pBar.style.width = "100%";
+            statusTime.innerText = "100%";
+
+            const totalScore = Math.round((emuScore * 1.5) + (gameScore * 0.8) + (aiScore * 1.0));
+
+            let tierText = "TIER B • СРЕДНИЙ КЛАСС";
+            const tierBadge = document.getElementById('res-tier');
+            tierBadge.className = "tier-badge tier-b";
+
+            if (totalScore >= 9500) {
+                tierText = "TIER S • ФЛАГМАНСКИЙ КРЕМНИЙ";
+                tierBadge.className = "tier-badge tier-s";
+            } else if (totalScore >= 6500) {
+                tierText = "TIER A • СУБФЛАГМАН";
+                tierBadge.className = "tier-badge tier-a";
+            }
+            tierBadge.innerText = tierText;
+
+            currentRun = {
+                user: (document.getElementById('user-name').value || "MrVolt").trim(),
+                device: detectedSpecs.device,
+                soc: detectedSpecs.soc,
+                cores: threads,
+                emu: emuScore,
+                game: gameScore,
+                ai: aiScore,
+                total: totalScore,
+                tier: tierText
+            };
+
+            document.getElementById('res-emu').innerText = `${emuScore} pts`;
+            document.getElementById('res-game').innerText = `${gameScore} pts`;
+            document.getElementById('res-ai').innerText = `${aiScore} pts`;
+            document.getElementById('res-total').innerText = totalScore.toLocaleString();
+
+            renderAiRecommendations(aiScore);
+
+            btn.disabled = false;
+            statusBox.style.display = 'none';
+            resultsCard.style.display = 'block';
+            resultsCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderAiRecommendations(aiScore) {
+            const container = document.getElementById('ai-matrix');
+            let s1 = "status-ok", t1 = "Отлично (~15-22 ток/с)";
+            let s2 = "status-mid", t2 = "Медленно (~4-7 ток/с)";
+            let s3 = "status-bad", t3 = "Тяжело (<2-3 ток/с)";
+
+            if (aiScore >= 1800) {
+                s2 = "status-ok"; t2 = "Комфортно (~12-16 ток/с)";
+                s3 = "status-ok"; t3 = "Рабочий темп (~8-11 ток/с)";
+            } else if (aiScore >= 1100) {
+                s2 = "status-ok"; t2 = "Комфортно (~9-12 ток/с)";
+                s3 = "status-mid"; t3 = "Медленно (~3-5 ток/с)";
+            }
+
+            container.innerHTML = `
+                <div class="ai-model-card">
+                    <div class="ai-model-info">
+                        <h5>1B – 2B Легковесные (Llama 3.2 1B, Qwen 2.5 1.5B)</h5>
+                        <p>Быстрые ассистенты, диалоги и краткая суммаризация</p>
+                    </div>
+                    <div class="ai-status ${s1}">${t1}</div>
+                </div>
+                <div class="ai-model-card">
+                    <div class="ai-model-info">
+                        <h5>3B – 4B Средние (Phi-3.5 Mini, Gemma 2 2B)</h5>
+                        <p>Логика, код, решение прикладных задач</p>
+                    </div>
+                    <div class="ai-status ${s2}">${t2}</div>
+                </div>
+                <div class="ai-model-card">
+                    <div class="ai-model-info">
+                        <h5>7B – 8B Тяжелые (Llama 3.1 8B, Qwen 2.5 7B Q4)</h5>
+                        <p>Требуют от 8–12 ГБ ОЗУ и высокую пропускную способность</p>
+                    </div>
+                    <div class="ai-status ${s3}">${t3}</div>
+                </div>
+            `;
+        }
+
+        // --- ВЗАИМОДЕЙСТВИЕ С СЕРВЕРОМ ЧЕРЕЗ API ---
+        async function publishScore() {
+            if (!currentRun.total) return;
+            const btn = document.getElementById('btn-pub');
+            btn.disabled = true;
+            btn.innerText = "⏳ Отправка на сервер...";
+
+            try {
+                const res = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentRun)
+                });
+                const data = await res.json();
+                if (data.status === "ok") {
+                    btn.innerText = "✔ Опубликовано!";
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerText = "🏆 Отправить результат на Сервер";
+                        switchTab('leaderboard');
+                    }, 500);
+                }
+            } catch (err) {
+                alert("Ошибка связи с сервером!");
+                btn.disabled = false;
+                btn.innerText = "🏆 Отправить результат на Сервер";
+            }
+        }
+
+        async function loadLeaderboard() {
+            const filter = document.getElementById('soc-filter').value;
+            const container = document.getElementById('leaderboard-list');
+            container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); font-size:13px;">Загрузка данных с сервера...</div>`;
+
+            try {
+                const res = await fetch(`/api/leaderboard?soc=${encodeURIComponent(filter)}`);
+                const list = await res.json();
+
+                if (!list || list.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted); font-size:13px;">В базе пока нет записей для этого фильтра</div>`;
+                    return;
+                }
+
+                let html = "";
+                list.forEach((item, index) => {
+                    let rankClass = "";
+                    let medal = `#${index + 1}`;
+                    if (index === 0) { rankClass = "rank-1"; medal = "🥇 #1"; }
+                    else if (index === 1) { rankClass = "rank-2"; medal = "🥈 #2"; }
+                    else if (index === 2) { rankClass = "rank-3"; medal = "🥉 #3"; }
+
+                    html += `
+                        <div class="leader-item">
+                            <div class="rank-col ${rankClass}">${medal}</div>
+                            <div class="leader-data">
+                                <div class="leader-line">
+                                    <span style="color: var(--cyan); font-size: 11px;">👤</span>
+                                    <span class="leader-user">${item.user}</span>
+                                </div>
+                                <div class="leader-device">📱 ${item.device}</div>
+                                <div class="leader-soc">⚡ ${item.soc} • ИИ: ~${item.tokens_1b} t/s (1B)</div>
+                                <span class="btn-history-toggle" onclick="openHistoryModal('${item.user}')">
+                                    📊 Статистика (${item.runs_count} тестов)
+                                </span>
+                            </div>
+                            <div class="leader-score">
+                                <div class="num">${item.total.toLocaleString()}</div>
+                                <div class="lbl">VOLTSCORE</div>
+                                <div style="font-size:9px; color:var(--text-muted); margin-top:3px;">${item.timestamp.split(' ')[1]}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = `<div style="text-align:center; padding: 20px; color: #ef4444; font-size:13px;">Не удалось связаться с сервером</div>`;
+            }
+        }
+
+        async function openHistoryModal(user) {
+            document.getElementById('history-user-title').innerText = `📊 Статистика: ${user}`;
+            const listContainer = document.getElementById('history-runs-list');
+            listContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:12px;">Загрузка...</div>`;
+            document.getElementById('history-modal').style.display = 'flex';
+
+            try {
+                const res = await fetch(`/api/history?user=${encodeURIComponent(user)}`);
+                const history = await res.json();
+                let html = "";
+                history.forEach((r, idx) => {
+                    const isLatest = idx === 0 ? `<span style="color:var(--volt); font-weight:700;">(В ТОПЕ)</span>` : "";
+                    html += `
+                        <div class="history-card">
+                            <div class="history-date">${r.timestamp} ${isLatest} • ${r.device}</div>
+                            <div class="history-main">
+                                <div style="font-size:12px; color:var(--cyan); font-weight:700;">${r.soc}</div>
+                                <div class="history-score">${r.total.toLocaleString()} pts</div>
+                            </div>
+                            <div class="history-breakdown">
+                                Single: ${r.emu} | Multi: ${r.game} | ИИ INT8: ${r.ai} (${r.tier})
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = html;
+            } catch (e) {
+                listContainer.innerHTML = `<div style="color:#ef4444; font-size:12px;">Ошибка загрузки истории</div>`;
+            }
+        }
+
+        function closeHistoryModal(e) {
+            if (!e || e.target.id === 'history-modal' || e.target.className === 'modal-close') {
+                document.getElementById('history-modal').style.display = 'none';
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (tab === 'test') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-test').style.display = 'block';
+                document.getElementById('tab-leaderboard').style.display = 'none';
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-test').style.display = 'none';
+                document.getElementById('tab-leaderboard').style.display = 'block';
+                loadLeaderboard();
+            }
+        }
+    </script>
+</body>
+</html>
